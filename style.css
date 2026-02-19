@@ -1,16 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scroll Sequence Animation</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <canvas id="hero-lightpass"></canvas>
+body {
+  margin: 0;
+  background-color: #000; /* Match your image background */
+  height: 500vh; /* Adjust this to make the scroll faster or slower */
+}
 
-    <div class="scroll-height"></div>
+canvas {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100vw;
+  max-height: 100vh;
+}
 
-    <script src="script.js"></script>
-</body>
-</html>
+.scroll-height {
+  height: 500vh;
+}

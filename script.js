@@ -1,78 +1,71 @@
-const canvas = document.getElementById("resume-canvas");
-const context = canvas.getContext("2d");
+const canvas = document.getElementById("animationCanvas");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
 const frameCount = 240;
-const currentFrame = index => (
-  `frames/ezgif-frame-${index.toString().padStart(3, '0')}.jpg`
-);
+const images = [];
+let imagesLoaded = 0;
+
+// Build image path (JPG)
+function getFrame(index) {
+    return `frames/ezgif-frame-${String(index).padStart(3, "0")}.jpg`;
+}
 
 // Preload images
-const images = [];
 for (let i = 1; i <= frameCount; i++) {
-  const img = new Image();
-  img.src = currentFrame(i);
-  images.push(img);
+    const img = new Image();
+    img.src = getFrame(i);
+    images.push(img);
+
+    img.onload = () => {
+        imagesLoaded++;
+        if (imagesLoaded === frameCount) {
+            drawFrame(0);
+        }
+    };
 }
 
-const resumeData = {
-    // PASTE YOUR EXTRACTED RESUME TEXT HERE
-    content: "Full Name: [Name]... Experience: [Details]..." 
-};
+// Draw frame
+function drawFrame(index) {
+    const img = images[index];
+    if (!img) return;
 
-// Canvas Drawing Logic
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-const updateImage = index => {
-  if (images[index]) {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(images[index], 0, 0, canvas.width, canvas.height);
-  }
-};
+    const scale = Math.max(
+        canvas.width / img.width,
+        canvas.height / img.height
+    );
 
-window.addEventListener('scroll', () => {  
-  const scrollTop = html.scrollTop;
-  const maxScrollTop = html.scrollHeight - window.innerHeight;
-  const scrollFraction = scrollTop / maxScrollTop;
-  const frameIndex = Math.min(
-    frameCount - 1,
-    Math.floor(scrollFraction * frameCount)
-  );
-  
-  requestAnimationFrame(() => updateImage(frameIndex + 1));
+    const x = (canvas.width - img.width * scale) / 2;
+    const y = (canvas.height - img.height * scale) / 2;
+
+    ctx.drawImage(
+        img,
+        x,
+        y,
+        img.width * scale,
+        img.height * scale
+    );
+}
+
+// Scroll control
+window.addEventListener("scroll", () => {
+    const scrollTop = document.documentElement.scrollTop;
+    const maxScroll =
+        document.documentElement.scrollHeight - window.innerHeight;
+
+    const scrollFraction = scrollTop / maxScroll;
+    const frameIndex = Math.min(
+        frameCount - 1,
+        Math.floor(scrollFraction * frameCount)
+    );
+
+    requestAnimationFrame(() => drawFrame(frameIndex));
 });
-
-// Chatbot Logic
-const chatToggle = document.getElementById('chat-toggle');
-const chatWindow = document.getElementById('chat-window');
-const sendBtn = document.getElementById('send-btn');
-const userInput = document.getElementById('user-input');
-const messagesDiv = document.getElementById('chat-messages');
-
-chatToggle.onclick = () => chatWindow.classList.toggle('hidden');
-
-async function askAI(question) {
-    // SYSTEM PROMPT FOR GEMINI
-    const systemPrompt = `You are a Resume Assistant. You MUST ONLY answer questions using the provided resume details: ${resumeData.content}. If the answer is not in the resume, politely say you don't have that information. Keep answers concise.`;
-
-    // Simulated API Call - Replace with your Gemini API Endpoint
-    // const response = await fetch('YOUR_GEMINI_API_ENDPOINT', { ... });
-    
-    return "This is a simulated response based on the resume data.";
-}
-
-sendBtn.onclick = async () => {
-    const text = userInput.value;
-    if(!text) return;
-
-    messagesDiv.innerHTML += `<div><b>You:</b> ${text}</div>`;
-    userInput.value = '';
-
-    const aiRes = await askAI(text);
-    messagesDiv.innerHTML += `<div><b>AI:</b> ${aiRes}</div>`;
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-};
-
-// Initial Frame
-images[0].onload = () => context.drawImage(images[0], 0, 0, canvas.width, canvas.height);
-const html = document.documentElement;
